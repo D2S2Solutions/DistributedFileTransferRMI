@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
 
 import static com.d2s2.constants.ApplicationConstants.randomWithRange;
 
@@ -73,13 +72,13 @@ public class Main {
 
         System.setProperty("java.rmi.server.hostname", ApplicationConstants.IP);
         try {
-            Registry thogaKadeRegistry = null;
+            Registry registry = null;
             try {
-                thogaKadeRegistry = LocateRegistry.createRegistry(ApplicationConstants.PORT);
+                registry = LocateRegistry.createRegistry(ApplicationConstants.PORT);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-            thogaKadeRegistry.rebind("DBFileTranfer", new RemoteFactoryImpl());
+            registry.rebind("DBFileTranfer", new RemoteFactoryImpl());
             System.out.println("Server is Starting...");
 
         } catch (RemoteException ex) {

@@ -1,4 +1,4 @@
-# DistributedFileTransfer
+# DistributedFileTransferRMI
 Unstructured network based solution for distributed file transfer
 # To build the project use # 
 mvn clean install
