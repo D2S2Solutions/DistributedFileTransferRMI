@@ -50,17 +50,8 @@ public class FileSearchInterface extends javax.swing.JFrame {
 
         dtmForSelfFileTable= (DefaultTableModel) selfFilesTable.getModel();
 
-        int i=0;
-        l1:for(int x=0;x<5;x++){
-            for(int y=0;y<4;y++){
-                if(i<fileList.size()){
-                    dtmForSelfFileTable.setValueAt(fileList.get(i).toString(),x,y);
-                    i++;
-                }else{
-                    break l1;
-                }
-
-            }
+        for(int x=0;x<5;x++){
+            dtmForSelfFileTable.setValueAt(fileList.get(x).toString(),0,x);
         }
     }
 

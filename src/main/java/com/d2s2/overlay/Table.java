@@ -1,4 +1,4 @@
-package com.d2s2.overlay.route;
+package com.d2s2.overlay;
 
 import com.d2s2.models.Node;
 

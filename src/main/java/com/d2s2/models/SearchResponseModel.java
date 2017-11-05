@@ -1,8 +1,8 @@
 package com.d2s2.models;
 
 import com.d2s2.constants.ApplicationConstants;
-import com.d2s2.overlay.route.PeerTableImpl;
-import com.d2s2.overlay.route.StatTableImpl;
+import com.d2s2.overlay.PeerTableImpl;
+import com.d2s2.overlay.StatTableImpl;
 import com.d2s2.ui.GUIController;
 
 import java.rmi.RemoteException;

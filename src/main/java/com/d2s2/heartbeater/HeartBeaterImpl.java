@@ -2,7 +2,7 @@ package com.d2s2.heartbeater;
 
 import com.d2s2.constants.ApplicationConstants;
 import com.d2s2.models.Node;
-import com.d2s2.overlay.route.NeighbourTableImpl;
+import com.d2s2.overlay.NeighbourTableImpl;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

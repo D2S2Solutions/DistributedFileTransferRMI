@@ -128,7 +128,7 @@ public class Main {
         };
         System.out.println("This node has :");
         ArrayList<String> fileList=new ArrayList<>();
-        Arrays.stream(fullLocalFileArray).filter(s -> (s.length() > randomWithRange(5, 20)))
+        Arrays.stream(fullLocalFileArray).filter(s -> (s.length() > randomWithRange(3, 5)))
                 .forEach(s -> {
                     System.out.println("\t" + s);
                     String saltedName = s.replace(" ", "@");

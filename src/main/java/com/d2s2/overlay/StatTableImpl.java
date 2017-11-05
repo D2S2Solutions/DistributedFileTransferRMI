@@ -1,10 +1,9 @@
-package com.d2s2.overlay.route;
+package com.d2s2.overlay;
 
 import com.d2s2.models.Node;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
 
 /**
  * Created by Heshan Sandamal on 10/6/2017.

@@ -3,7 +3,6 @@ package com.d2s2.ui;
 import com.d2s2.Handler.Handler;
 import com.d2s2.Handler.HandlerImpl;
 import com.d2s2.models.SearchResponseModel;
-import com.d2s2.overlay.route.PeerTableImpl;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;

@@ -1,0 +1,91 @@
+import com.d2s2.constants.ApplicationConstants;
+
+import javax.swing.table.DefaultTableModel;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.HashSet;
+
+
+
+private final GUIController guiController;
+    private DefaultTableModel dtmForSearchResultTable;
+    private DefaultTableModel dtmForSelfFileTable;
+
+
+    public FileSearchInterface(GUIController guiController, ArrayList<String> fileList) {
+        this.guiController=guiController;
+        initComponents();
+        this.selfFilesTable.getTableHeader().setVisible(false);
+        this.userNameTextField.setText(ApplicationConstants.USER_NAME);
+        this.ipTextField.setText(ApplicationConstants.IP);
+        this.portTextField.setText(String.valueOf(ApplicationConstants.PORT));
+
+
+        this.searchButton.addActionListener(evt -> {
+            dtmForSearchResultTable.setRowCount(0);
+            try {
+                guiController.searchFile(this.searchTextField.getText());
+            } catch (RemoteException | NotBoundException e) {
+                e.printStackTrace();
+            }
+        });
+
+        dtmForSearchResultTable= (DefaultTableModel) searchResultsTable.getModel();
+        dtmForSearchResultTable.setRowCount(0);
+
+        dtmForSelfFileTable= (DefaultTableModel) selfFilesTable.getModel();
+
+        int i=0;
+        l1:for(int x=0;x<5;x++){
+            for(int y=0;y<4;y++){
+                if(i<fileList.size()){
+                    dtmForSelfFileTable.setValueAt(fileList.get(i).toString(),x,y);
+                    i++;
+                }else{
+                    break l1;
+                }
+
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public synchronized void addToTable(String nodeIp, int port, int fileCount, HashSet<String> fileList, int ttl){
+        System.out.println("Calling interface "+nodeIp+port);
+        String fileNames="";
+        for(String fileName:fileList){
+            fileNames+=fileName+",";
+        }
+        if(!this.isValueExistsAtTable(nodeIp,port)){
+            this.dtmForSearchResultTable.addRow(new Object[]{nodeIp,port,fileCount,fileNames,ttl});
+        }
+    }
+
+
+    private boolean isValueExistsAtTable(String ip,int port){
+        int rowCount = this.dtmForSearchResultTable.getRowCount();
+        for (int i = 0; i < rowCount ; i++) {
+            String nodeIp = String.valueOf(dtmForSearchResultTable.getValueAt(i, 0));
+            int nodePort = Integer.parseInt(dtmForSearchResultTable.getValueAt(i,1).toString());
+
+            if(nodeIp.equals(ip) && nodePort==port){
+                return true;
+            }
+        }
+        return false;
+    }
