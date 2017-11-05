@@ -96,8 +96,7 @@ public class Main {
     private static void search(String query) {
         FileHandler fileHandler = FileHandlerImpl.getInstance();
         List<String> documents = fileHandler.searchLocalFileList(query);
-        for (String s :
-                documents) {
+        for (String s : documents) {
             System.out.println(s);
         }
     }
@@ -128,13 +127,15 @@ public class Main {
         };
         System.out.println("This node has :");
         ArrayList<String> fileList=new ArrayList<>();
-        Arrays.stream(fullLocalFileArray).filter(s -> (s.length() > randomWithRange(3, 5)))
-                .forEach(s -> {
-                    System.out.println("\t" + s);
-                    String saltedName = s.replace(" ", "@");
-                    fileHandler.initializeFileStorage(saltedName);
-                    fileList.add(saltedName);
-                });
+
+        int length=fullLocalFileArray.length;
+        for (int i = 0; i < randomWithRange(3,5) ; i++) {
+            String s = fullLocalFileArray[randomWithRange(0, length-1)];
+            System.out.println("\t" + s);
+            String saltedName = s.replace(" ", "@");
+            fileHandler.initializeFileStorage(saltedName);
+            fileList.add(saltedName);
+        }
 
         GUIController guiController=GUIController.getInstance();
         FileSearchInterface fileSearchInterface = new FileSearchInterface(guiController,fileList);

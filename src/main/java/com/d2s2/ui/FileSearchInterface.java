@@ -5,30 +5,27 @@
  */
 package com.d2s2.ui;
 
+/**
+ *
+ * @author Heshan Sandamal
+ */
 import com.d2s2.constants.ApplicationConstants;
 
 import javax.swing.table.DefaultTableModel;
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-/**
- *
- * @author Heshan Sandamal
- */
 public class FileSearchInterface extends javax.swing.JFrame {
 
-    /**
-     * Creates new form FileSearchInterface
-     */
-    private final GUIController guiController;
+
     private DefaultTableModel dtmForSearchResultTable;
     private DefaultTableModel dtmForSelfFileTable;
 
 
     public FileSearchInterface(GUIController guiController, ArrayList<String> fileList) {
-        this.guiController=guiController;
         initComponents();
         this.selfFilesTable.getTableHeader().setVisible(false);
         this.userNameTextField.setText(ApplicationConstants.USER_NAME);
@@ -45,14 +42,60 @@ public class FileSearchInterface extends javax.swing.JFrame {
             }
         });
 
-        dtmForSearchResultTable= (DefaultTableModel) searchResultsTable.getModel();
+        this.registerButton.addActionListener(evt->{
+            try {
+                guiController.registerInBS();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        this.unregisterButton.addActionListener(evt->{
+            try {
+                guiController.unRegister();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        });
+
+        dtmForSearchResultTable = (DefaultTableModel) searchResultsTable.getModel();
         dtmForSearchResultTable.setRowCount(0);
 
-        dtmForSelfFileTable= (DefaultTableModel) selfFilesTable.getModel();
+        dtmForSelfFileTable = (DefaultTableModel) selfFilesTable.getModel();
 
-        for(int x=0;x<5;x++){
-            dtmForSelfFileTable.setValueAt(fileList.get(x).toString(),0,x);
+        for(int x=0;x<fileList.size();x++){
+            dtmForSelfFileTable.setValueAt(fileList.get(x).replace("@"," ").toString(),0,x);
         }
+    }
+
+
+
+
+
+    public synchronized void addToTable(String nodeIp, int port, int fileCount, HashSet<String> fileList, int ttl) {
+        System.out.println("Calling interface " + nodeIp + port);
+        String fileNames = "";
+        for (String fileName : fileList) {
+            fileNames += fileName.replace("@"," ") + " , ";
+        }
+        int noOfHops= ApplicationConstants.HOPS-1-ttl;
+        if (!this.isValueExistsAtTable(nodeIp, port)) {
+            this.dtmForSearchResultTable.addRow(new Object[]{nodeIp, port, fileCount, fileNames, noOfHops});
+        }
+    }
+
+
+    private boolean isValueExistsAtTable(String ip, int port) {
+        int rowCount = this.dtmForSearchResultTable.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            String nodeIp = String.valueOf(dtmForSearchResultTable.getValueAt(i, 0));
+            int nodePort = Integer.parseInt(dtmForSearchResultTable.getValueAt(i, 1).toString());
+
+            if (nodeIp.equals(ip) && nodePort == port) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -81,15 +124,21 @@ public class FileSearchInterface extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         searchResultsTable = new javax.swing.JTable();
+        unregisterButton = new javax.swing.JButton();
+        registerButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Distributed File Search");
+        setBackground(new java.awt.Color(0, 51, 51));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Distributed File Search");
 
+        jPanel2.setBackground(new java.awt.Color(102, 102, 102));
         jPanel2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
 
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Port");
 
         portTextField.setEditable(false);
@@ -101,75 +150,39 @@ public class FileSearchInterface extends javax.swing.JFrame {
 
         userNameTextField.setEditable(false);
 
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("UserName");
 
         ipTextField.setEditable(false);
 
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("IP");
 
-        selfFilesTable.setModel(new javax.swing.table.DefaultTableModel(
+        selfFilesTable.setModel(new DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
             }
         ));
+        selfFilesTable.setAutoscrolls(false);
         jScrollPane2.setViewportView(selfFilesTable);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane2)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(userNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(45, 45, 45)
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ipTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(48, 48, 48)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(userNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4)
-                    .addComponent(ipTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
+        jPanel3.setBackground(new java.awt.Color(102, 102, 102));
         jPanel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
 
+        searchButton.setBackground(new java.awt.Color(51, 153, 0));
         searchButton.setText("Search");
 
         searchTextField.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Search Query:");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Search Results"));
 
-        searchResultsTable.setModel(new javax.swing.table.DefaultTableModel(
+        searchResultsTable.setModel(new DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -177,10 +190,19 @@ public class FileSearchInterface extends javax.swing.JFrame {
                 {null, null, null, null, null}
             },
             new String [] {
-                "Node Ip", "Port", "File Count", "Files", "TTL"
+                "Node Ip", "Port", "File Count", "Files", "HOPS"
             }
         ));
         jScrollPane1.setViewportView(searchResultsTable);
+        if (searchResultsTable.getColumnModel().getColumnCount() > 0) {
+            searchResultsTable.getColumnModel().getColumn(0).setPreferredWidth(120);
+            searchResultsTable.getColumnModel().getColumn(0).setMaxWidth(400);
+            searchResultsTable.getColumnModel().getColumn(1).setMaxWidth(100);
+            searchResultsTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+            searchResultsTable.getColumnModel().getColumn(2).setMaxWidth(100);
+            searchResultsTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+            searchResultsTable.getColumnModel().getColumn(4).setMaxWidth(100);
+        }
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -195,7 +217,7 @@ public class FileSearchInterface extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 467, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -228,28 +250,87 @@ public class FileSearchInterface extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(userNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(45, 45, 45)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ipTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(48, 48, 48)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(userNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
+                    .addComponent(ipTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        unregisterButton.setBackground(new java.awt.Color(204, 0, 0));
+        unregisterButton.setText("Unregister");
+
+        registerButton.setBackground(new java.awt.Color(0, 153, 0));
+        registerButton.setText("Register");
+        registerButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                registerButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(registerButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(unregisterButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(registerButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(unregisterButton))
+                        .addGap(15, 15, 15))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -258,6 +339,10 @@ public class FileSearchInterface extends javax.swing.JFrame {
     private void portTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portTextFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_portTextFieldActionPerformed
+
+    private void registerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_registerButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -307,36 +392,12 @@ public class FileSearchInterface extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField portTextField;
+    private javax.swing.JButton registerButton;
     private javax.swing.JButton searchButton;
     private javax.swing.JTable searchResultsTable;
     private javax.swing.JTextField searchTextField;
     private javax.swing.JTable selfFilesTable;
+    private javax.swing.JButton unregisterButton;
     private javax.swing.JTextField userNameTextField;
     // End of variables declaration//GEN-END:variables
-
-
-    public synchronized void addToTable(String nodeIp, int port, int fileCount, HashSet<String> fileList, int ttl){
-        System.out.println("Calling interface "+nodeIp+port);
-        String fileNames="";
-        for(String fileName:fileList){
-            fileNames+=fileName+",";
-        }
-        if(!this.isValueExistsAtTable(nodeIp,port)){
-            this.dtmForSearchResultTable.addRow(new Object[]{nodeIp,port,fileCount,fileNames,ttl});
-        }
-    }
-
-
-    private boolean isValueExistsAtTable(String ip,int port){
-        int rowCount = this.dtmForSearchResultTable.getRowCount();
-        for (int i = 0; i < rowCount ; i++) {
-            String nodeIp = String.valueOf(dtmForSearchResultTable.getValueAt(i, 0));
-            int nodePort = Integer.parseInt(dtmForSearchResultTable.getValueAt(i,1).toString());
-
-            if(nodeIp.equals(ip) && nodePort==port){
-                return true;
-            }
-        }
-        return false;
-    }
 }

@@ -4,6 +4,7 @@ import com.d2s2.Handler.Handler;
 import com.d2s2.Handler.HandlerImpl;
 import com.d2s2.models.SearchResponseModel;
 
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
@@ -35,6 +36,15 @@ public class GUIController {
     public void searchFile(String fileName) throws RemoteException, NotBoundException {
         handler.searchFile(fileName);
     }
+
+    public void registerInBS() throws IOException {
+        handler.registerInBS();
+    }
+
+    public void unRegister() throws RemoteException {
+        handler.gracefulLeaveRequest();
+    }
+
 
     public void displaySearchResults(SearchResponseModel searchResponseModel){
         fileSearchInterface.addToTable(searchResponseModel.getIp(),searchResponseModel.getPort(),searchResponseModel.getNoOfFiles()
